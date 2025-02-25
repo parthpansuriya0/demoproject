@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <title>Demo !</title>
+
+    <style>
+        th{
+            width: 150px;
+            border: 1px solid;
+            padding: 7px;
+            text-align: center;
+        }
+        td{
+            width: 300px;
+            border: 1px solid;
+            padding: 7px;
+        }
+        .tabledata td{
+            text-align: center;
+        }
+        .dropdownf{
+            width: 100%;
+            border: none;
+        
+        }
+        #update{
+            width: 48%;
+            margin-right: 10px;
+            float: left;    
+        }
+        #cancel{
+            width: 48%;
+        }
+        .search{
+            width: 50%;
+            float: left;
+        }
+        .fsearch{
+            width: 80%;
+            float: left;
+        }
+        .dropdown-menu{
+            cursor: pointer;
+        }
+        
+    </style>
+  </head>
+  <body>
+    <div class="row mx-5">
+        <div class="col-md-4">
+            <form class="mt-5" name="myform">
+                <table>
+                    <div class="alert alert-danger" id="error" role="alert"></div>
+                    <tr class="p-2">
+                        <th><label for="name">Name</label></th>
+                        <td><input type="text" class="form-control" id="name" /></td>
+                        <input type="text" class="form-control" id="id" />
+                    </tr>
+                    <tr class="p-2">
+                        <th><label for="email">Email</label></th>
+                        <td><input type="email" class="form-control" id="email" /></td>
+                    </tr>
+                    <tr class="p-2">
+                        <th><label for="gender">Gender</label></th>
+                        <td>
+                            <input type="radio" name="gender" id="male" value="Male"/>
+                            <label for="male">Male</label>
+                            <input class="ms-2" type="radio" name="gender" id="female" value="Female"/>
+                            <label for="female">Female</label>
+                        </td>
+                    </tr>
+                    <tr class="p-2">
+                        <th><label>Hobbies</label></th>
+                        <td>
+                            <input type="checkbox" class="hobbies" id="reading" value="Reading"/>
+                            <label for="reading">Reading</label>
+                            <input class="ms-2" type="checkbox" class="hobbies" id="travelling" value="Travelling"/>
+                            <label for="travelling">Travelling</label>
+                            <input class="ms-2" type="checkbox" class="hobbies" id="sports" value="Sports"/>
+                            <label for="sports">Sports</label>
+                        </td>
+                    </tr>
+                    <tr class="p-2">
+                        <th><label for="age">Age</label></th>
+                        <td><input type="number" class="form-control" id="age" /></td>
+                    </tr>
+                    <tr class="p-2">
+                        <th><label for="state">State</label></th>
+                        <td><select class="form dropdownf" id="state" name="state"></select></td>
+                    </tr>
+                    <tr class="p-2">
+                        <th><label for="city">City</label></th>
+                        <td><select class="form dropdownf" id="city" name="city"></select></td>
+                    </tr>
+                    <tr class="p-2">
+                        <th><label for="inputemail">Action</label></th>
+                        <td><button type="button" onclick="sendform()" id="save" class="btn btn-primary">Save</button>
+                            <button type="button" onclick="updateform()" id="update" class="btn btn-primary">Update</button>
+                            <button type="button" onclick="cancelform()" id="cancel"  class="btn btn-secondary">Cancel</button></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div class="col-md-8 mt-5">
+            <div class="d-flex justify-content-between align-items-center">
+                <form class="form-inline fsearch">
+                    <input class="form-control search mr-sm-2" id="search" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-success mx-2" type="button" onclick="gosearch()">Search</button>
+                </form>
+                <div class="dropdown sort">
+                    <button class="btn btn-outline-info dropdown-toggle px-5" id="sortbtn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" id="ascend" onclick="sortascending()">Ascending</a></li>
+                        <li><a class="dropdown-item" id="descend" onclick="sortdescending()">Descending</a></li>
+                    </ul>
+                </div>
+            </div>
+            <table class="tabledata mt-2" >
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Gender</th>
+                        <th>Hobbies</th>
+                        <th>Age</th>
+                        <th>State</th>
+                        <th>City</th>
+                        <th>Delete</th>
+                        <th>Modify</th>
+                    </tr>
+                </thead>
+                <tbody id="tabledatabody"></tbody>
+              </table>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#id").hide()
+            $("#error").hide()
+            $("#cancel").hide()
+            $("#update").hide()
+            $("#save").css("width","100%")
+            let a = $("#state").val() 
+            let state = ["Gujarat","Maharashtra","Karnataka","Rajasthan"];
+            let statedata = "<option value='' disabled selected>Select</option>"
+            for(let i=0; i<state.length; i++){
+                statedata += `<option value="${state[i]}">${state[i]}</option>`
+                $("#state").html(statedata)
+            }
+            if (a == null){
+                $("#city").hide()
+            }
+            let forcity = ""
+            $("#state").on("change",function(){
+                city()
+            })
+            
+            tabledata = "";
+            alldata = [{"id":111,"name":"Abcd","email":"abcd@gmail.com","gender":"Male","hobbies":['Reading', 'Travelling', 'Sports'],"age":20,"state":"Gujarat","city":"Surat","created_time":new Date()},{"id":112,"name":"Wxyz","email":"wxyz@gmail.com","gender":"Female","hobbies":['Travelling', 'Sports'],"age":22,"state":"Maharashtra","city":"Pune","created_time":new Date()}]
+            showdata(alldata)
+
+            $('#search').on("input",function(){
+                gosearch()
+            })
+
+        });
+        
+        function city(){
+            forcity = $("#state").find(":selected").val()
+            $("#city").show()
+            let guj = ["Ahmedabad","Surat","Jamnagar","Rajkot","Bhavnagar","Gandhinagar","Amreli","Junagadh"]
+            let mah = ["Mumbai","Pune","Nagpur","Thane","Nasik","Solapur","Jalgaon","Kolhapur","Aurangabad"]
+            let kar = ["Bangalore","Mysore","Gangavati","Mangalore","Bhadravati","Kolar","Vijayapura"]
+            let raj = ["Jaipur","Jodhpur","Kota","Bikaner","Udaipur","Ajmer","Sikar","Bhilwara","Pali"]
+            let city = ""
+            if (forcity == "Gujarat"){
+                city = guj
+            }else if(forcity == "Maharashtra"){
+                city = mah
+            }else if(forcity == "Karnataka"){
+                city = kar
+            }else if(forcity == "Rajasthan"){
+                city = raj
+            }
+            
+            citydata = "<option value='' disabled selected>Select</option>"
+            for(let i=0; i<city.length; i++){
+                citydata += `<option value="${city[i]}">${city[i]}</option>`
+                $("#city").html(citydata)
+            }
+        }
+        
+        function sendform(){
+            let xname = $("#name").val();
+            let xemail = $("#email").val();
+            let xgender = $("input[type='radio'][name=gender]:checked").val()
+            let xage = $("#age").val();
+            let xhobbies = []
+            let xstate = $("#state").val();
+            let xcity = $("#city").val();
+
+            if (xname == "" || xemail == "" || xage == "" ){
+                $("#error").show()
+                return $("#error").text("Please Enter All Input Fields")
+            }
+            if(xname == ""){
+                $("#error").show()
+                return $("#error").text("Please Enter Name")
+            }
+            if(xemail == ""){
+                $("#error").show()
+                return $("#error").text("Please Enter Email")
+            }
+            if (!$("input[name='gender']").is(':checked')){
+                $("#error").show()
+                return $("#error").text("Please Select Your Gender")
+            }
+            if (!$("#reading").is(':checked') && !$("#travelling").is(':checked') && !$("#sports").is(':checked')){
+                $("#error").show()
+                return $("#error").text("Please Select Your Hobbie")
+            }
+            if(xage == ""){
+                $("#error").show()
+                return $("#error").text("Please Enter Age")
+            }
+            if ($("#state").find(":selected").val() == ""){
+                $("#error").show()
+                return $("#error").text("Please Select Your State")
+            }
+            if ($("#city").find(":selected").val() == ""){
+                $("#error").show()
+                return $("#error").text("Please Select Your City")
+            }
+            
+            if($("#reading").is(':checked')){
+                xhobbies.push($("#reading").val())
+            }
+            if($("#travelling").is(':checked')){
+                xhobbies.push($("#travelling").val())
+            }
+            if($("#sports").is(':checked')){
+                xhobbies.push($("#sports").val())
+            }
+ 
+            $("#error").hide() 
+            xid = Math.floor((Math.random() * 999) + 1)
+            if (xid == 111 || xid == 112){
+                xid = Math.floor((Math.random() * 999) + 1)
+            }
+            xdata = {"id":xid,"name":xname,"email":xemail,"gender":xgender,"hobbies":xhobbies,"age":xage,"state":xstate,"city":xcity,"created_time":new Date()}
+            alldata.push(xdata)
+            tabledata += `
+                <tr>
+                    <td>${xdata["name"]}</td>
+                    <td>${xdata["email"]}</td>
+                    <td>${xdata["gender"]}</td>
+                    <td>${xdata["hobbies"]}</td>
+                    <td>${xdata["age"]}</td>
+                    <td>${xdata["state"]}</td>
+                    <td>${xdata["city"]}</td>
+                    <td><button type="submit" onclick="datadelete(${xdata["id"]})" class="btn btn-danger form-control">Delete</button></td>
+                    <td><button type="submit" onclick="dataedit(${xdata["id"]})" class="btn btn-secondary form-control">Edit</button></td>
+                </tr>`
+                
+                $('#tabledatabody').html(tabledata)
+                cancelform()
+        }
+        
+        function showdata(alldata){
+            tabledata = ""
+            for(let i = 0; i < alldata.length;i++){
+                tabledata += `
+                <tr>
+                    <td>${alldata[i]["name"]}</td>
+                    <td>${alldata[i]["email"]}</td>
+                    <td>${alldata[i]["gender"]}</td>
+                    <td>${alldata[i]["hobbies"]}</td>
+                    <td>${alldata[i]["age"]}</td>
+                    <td>${alldata[i]["state"]}</td>
+                    <td>${alldata[i]["city"]}</td>
+                    <td><button type="submit" onclick="datadelete(${alldata[i]["id"]})" class="btn btn-danger form-control">Delete</button></td>
+                    <td><button type="submit" onclick="dataedit(${alldata[i]["id"]})" class="btn btn-secondary form-control">Edit</button></td>
+                    </tr>`
+                
+                $('#tabledatabody').html(tabledata) 
+            }
+        }
+
+        function datadelete(did){
+            dindex = alldata.findIndex(x => x.id === did);
+            alldata.splice(dindex, 1)
+            $('#tabledatabody').empty() 
+            showdata(alldata)
+        }
+        
+        function dataedit(did){
+            $("#save").hide()
+            $("#cancel").show()
+            $("#update").show()
+            const dindex = alldata.findIndex(x => x.id === did);
+            $("#id").val(alldata[dindex]["id"])
+            $("#name").val(alldata[dindex]["name"])
+            $("#email").val(alldata[dindex]["email"])
+            $("#age").val(alldata[dindex]["age"])
+            if (alldata[dindex]["gender"] == "Male"){
+                $("#male").attr("checked", true).click(); 
+            }else{
+                $("#female").attr("checked", true).click(); 
+            }
+
+            $("#reading, #travelling, #sports").prop('checked', false);
+            alldata[dindex]["hobbies"].forEach(element => {
+                if(element == "Reading"){
+                    $("#reading").prop('checked', true);
+                }else if(element == "Travelling"){
+                    $("#travelling").prop('checked', true);
+                }else{
+                    $("#sports").prop('checked', true);
+                }
+            });
+            
+            $("#state").val(alldata[dindex]["state"])
+            city()
+            $("#city").val(alldata[dindex]["city"])
+            
+        }
+        
+        function updateform(){
+            updatedindex = alldata.findIndex(x => x.id == $("#id").val());
+            xhobbies = []
+            if($("#reading").is(':checked')){
+                xhobbies.push($("#reading").val())
+            }
+            if($("#travelling").is(':checked')){
+                xhobbies.push($("#travelling").val())
+            }
+            if($("#sports").is(':checked')){
+                xhobbies.push($("#sports").val())
+            }
+            alldata[updatedindex].id = $("#id").val();
+            alldata[updatedindex].name = $("#name").val();
+            alldata[updatedindex].email = $("#email").val();
+            alldata[updatedindex].gender = $("input[type='radio'][name=gender]:checked").val();
+            alldata[updatedindex].hobbies = xhobbies;
+            alldata[updatedindex].age = $("#age").val();
+            alldata[updatedindex].state = $("#state").val();
+            alldata[updatedindex].city = $("#city").val();
+            alldata[updatedindex].created_time = new Date();
+            
+            $('#tabledatabody').empty() 
+            showdata(alldata)
+            cancelform()
+        }
+
+        function cancelform() {
+            $("#save").show()
+            $("#update").hide()
+            $("#cancel").hide()
+            $("#name").val("")
+            $("#email").val("")
+            $("#age").val("")
+            $('input[name=gender]').prop('checked',false);
+            $("#reading, #travelling, #sports").prop('checked', false);
+            $("#state").val("")
+            $("#city").hide()
+        }
+
+        function gosearch(){
+            if(!$('#search').val() == ""){
+                searchname = $('#search').val().toLowerCase();
+                searchdata = alldata.filter(x => x.name.toLowerCase().includes(searchname))
+                if (searchdata == ""){
+                    $('#tabledatabody').empty() 
+                }else{
+                    showdata(searchdata)
+                }
+            }else{
+                showdata(alldata)
+            }
+        }
+
+        function sortascending(){
+            $("#sortbtn").text("Ascending")
+            sortdata = alldata.sort((a, b) => a.name.localeCompare(b.name));
+            $('#tabledatabody').empty() 
+            showdata(alldata)
+        }
+        
+        function sortdescending(){
+            $("#sortbtn").text("Descending")
+            sortdata = alldata.sort((a, b) => b.name.localeCompare(a.name));
+            $('#tabledatabody').empty() 
+            showdata(alldata)
+        }
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  </body>
+</html>
